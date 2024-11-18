@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "toml_i18n"  # Note: Ensure it's unique on PyPI
+version = "1.0.4"
+description = "A lightweight localization module for Python projects"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "Arved Klöhn", email = "arved.kloehn@gmail.com"}
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "tomli; python_version<'3.11'"
+]
+requires-python = ">=3.7"
