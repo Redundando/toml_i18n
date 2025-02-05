@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "toml_i18n"  # Note: Ensure it's unique on PyPI
-version = "1.0.4"
+version = "1.0.5"
 description = "A lightweight localization module for Python projects"
 readme = "README.md"
 license = {text = "MIT"}

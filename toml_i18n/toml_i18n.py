@@ -3,6 +3,14 @@ from pathlib import Path
 from collections import defaultdict
 import locale as lc
 
+class Default(dict):
+    """
+    A dictionary subclass that returns an empty string for missing keys.
+    """
+    def __missing__(self, key):
+        return ''
+
+
 class TomlI18n:
     _instance = None  # Singleton instance
 
@@ -24,7 +32,7 @@ class TomlI18n:
             Exception: If an instance of the I18n class already exists (singleton pattern).
         """
         if TomlI18n._instance is not None:
-            raise Exception("Localizer is a singleton. Use Localizer.initialize() to set it up.")
+            raise Exception("TomlI18n is a singleton. Use TomlI18n.initialize() to set it up.")
         self.locale = locale
         self.fallback_locale = fallback_locale
         self.directory = Path(directory)
@@ -65,7 +73,7 @@ class TomlI18n:
     def get_instance(cls):
         """Get the singleton instance."""
         if cls._instance is None:
-            raise Exception("Localizer not initialized. Call Localizer.initialize() first.")
+            raise Exception("TomlI18n not initialized. Call TomlI18n.initialize() first.")
         return cls._instance
 
     def _load_all_strings(self, locale: str) -> dict:
@@ -79,7 +87,7 @@ class TomlI18n:
                         merged_strings[key].update(value)  # Merge nested dictionaries
                     else:
                         merged_strings[key] = value
-        return dict(merged_strings)  # Convert defaultdict to a regular dict
+        return dict(merged_strings)  # Convert default dict to a regular dict
 
     @classmethod
     def get(cls, key: str, **kwargs) -> str:
@@ -88,13 +96,14 @@ class TomlI18n:
         """
         instance = cls.get_instance()
         value = instance._get_string(key, instance.strings)  # Try primary locale
+        print(value)
         if value is None:
             value = instance._get_string(key, instance.fallback_strings)  # Try fallback locale
         if value is None:
             return f"Missing translation for '{key}'"
-        return value.format(**kwargs)
+        return value.format_map(Default(**kwargs))
 
-    def _get_string(self, key: str, strings: dict) -> str:
+    def _get_string(self, key: str, strings: dict) -> None|str:
         """Helper method to retrieve a string by key."""
         keys = key.split(".")
         value = strings
