@@ -96,7 +96,6 @@ class TomlI18n:
         """
         instance = cls.get_instance()
         value = instance._get_string(key, instance.strings)  # Try primary locale
-        print(value)
         if value is None:
             value = instance._get_string(key, instance.fallback_strings)  # Try fallback locale
         if value is None:

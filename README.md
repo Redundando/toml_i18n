@@ -1,4 +1,8 @@
-# i18n
+# toml_i18n
+
+[![PyPI version](https://badge.fury.io/py/toml-i18n.svg)](https://pypi.org/project/toml-i18n/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.7+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
 
 `toml_i18n` is a lightweight localization module for Python projects. It provides an easy way to manage and retrieve localized strings using TOML files.
 
@@ -53,6 +57,14 @@ This needs to be done only once when running the project.
 from toml_i18n import i18n
 
 print(i18n("general.greeting", name="John Doe"))
+```
+
+### Step 5: Format Numbers (Optional)
+
+```python
+from toml_i18n import i18n_number
+
+print(i18n_number(1234.56, decimals=2))  # Formats according to current locale
 ```
 
 ## Key Features
