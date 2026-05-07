@@ -34,7 +34,20 @@ print(i18n("general.greeting", name="Alice"))  # "Bonjour Alice!"
 In your project directory, create a subdirectory for your localization files (e.g., `i18n`).
 
 **Step 2: Add Translation Files**
-Inside the directory, create TOML files for your localized strings:
+Inside the directory, create TOML files for your localized strings. Files are discovered recursively, so you can organize them into subdirectories:
+
+```
+i18n/
+├── general.en.toml
+├── general.fr.toml
+└── features/
+    ├── auth/
+    │   ├── auth.en.toml
+    │   └── auth.fr.toml
+    └── billing/
+        ├── billing.en.toml
+        └── billing.fr.toml
+```
 
 `general.en.toml`:
 ```toml
@@ -114,7 +127,7 @@ async def main():
 # Get current locale
 current = TomlI18n.get_locale()  # "fr"
 
-# List available locales
+# List available locales (discovers from all subdirectories)
 locales = TomlI18n.get_available_locales()  # ["de", "en", "fr"]
 
 # Check if translation exists
@@ -125,9 +138,25 @@ if TomlI18n.has_key("optional.feature"):
 TomlI18n.get_instance().set_locale("de")
 ```
 
+### Subdirectory Organization
+
+Translation files are loaded recursively from the configured directory. Files at any depth are merged by top-level key using dictionary update semantics — the same behavior as multiple files at the root level. Files are processed in sorted path order for deterministic results.
+
+```
+i18n/
+├── common.en.toml          # [common] keys
+├── admin/
+│   └── dashboard.en.toml   # [dashboard] keys
+└── public/
+    └── landing.en.toml     # [landing] keys
+```
+
+All keys from all files are available through the same `i18n()` interface regardless of directory depth.
+
 ## Features
 
 - **Flexible Localization**: Load translations from TOML files
+- **Recursive Directory Loading**: Automatically discovers translation files in subdirectories, letting you organize large translation sets into logical folders
 - **Fallback Locale**: Automatically fall back to a default locale if a key is missing
 - **Dynamic Formatting**: Use placeholders in your strings for flexible output
 - **Pluralization**: Built-in support for plural forms (_zero, _one, _other)

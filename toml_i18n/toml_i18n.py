@@ -77,10 +77,12 @@ class TomlI18n:
 
     @classmethod
     def get_available_locales(cls) -> list[str]:
-        """Get list of available locales based on TOML files in directory."""
+        """Get list of available locales based on TOML files in directory and all subdirectories."""
         instance = cls.get_instance()
+        if not instance.directory.exists():
+            return []
         locales = set()
-        for file in instance.directory.glob("*.*.toml"):
+        for file in instance.directory.glob("**/*.*.toml"):
             parts = file.stem.split(".")
             if len(parts) >= 2:
                 locales.add(parts[-1])
@@ -94,13 +96,15 @@ class TomlI18n:
                 instance._get_string(key, instance.fallback_strings) is not None)
 
     def _load_all_strings(self, locale: str) -> dict:
-        """Load and merge all TOML files for a given locale."""
+        """Load and merge all TOML files for a given locale from the directory and all subdirectories."""
+        if not self.directory.exists():
+            return {}
         merged_strings = defaultdict(dict)
-        for file in self.directory.glob(f"*.{locale}.toml"):
+        for file in sorted(self.directory.glob(f"**/*.{locale}.toml")):
             with open(file, "rb") as f:  # tomllib requires binary mode
                 data = tomllib.load(f)
                 for key, value in data.items():
-                    if key in merged_strings:
+                    if key in merged_strings and isinstance(merged_strings[key], dict) and isinstance(value, dict):
                         merged_strings[key].update(value)  # Merge nested dictionaries
                     else:
                         merged_strings[key] = value
