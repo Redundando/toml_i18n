@@ -4,7 +4,6 @@ except ModuleNotFoundError:
     import tomli as tomllib
 
 from pathlib import Path
-from collections import defaultdict
 from contextvars import ContextVar
 from typing import Optional
 
@@ -95,20 +94,26 @@ class TomlI18n:
         return (instance._get_string(key, instance.strings) is not None or 
                 instance._get_string(key, instance.fallback_strings) is not None)
 
+    @staticmethod
+    def _deep_merge(base: dict, override: dict) -> dict:
+        """Recursively merge override into base, combining dicts at all levels."""
+        for key, value in override.items():
+            if key in base and isinstance(base[key], dict) and isinstance(value, dict):
+                TomlI18n._deep_merge(base[key], value)
+            else:
+                base[key] = value
+        return base
+
     def _load_all_strings(self, locale: str) -> dict:
         """Load and merge all TOML files for a given locale from the directory and all subdirectories."""
         if not self.directory.exists():
             return {}
-        merged_strings = defaultdict(dict)
+        merged_strings = {}
         for file in sorted(self.directory.glob(f"**/*.{locale}.toml")):
             with open(file, "rb") as f:  # tomllib requires binary mode
                 data = tomllib.load(f)
-                for key, value in data.items():
-                    if key in merged_strings and isinstance(merged_strings[key], dict) and isinstance(value, dict):
-                        merged_strings[key].update(value)  # Merge nested dictionaries
-                    else:
-                        merged_strings[key] = value
-        return dict(merged_strings)  # Convert default dict to a regular dict
+                self._deep_merge(merged_strings, data)
+        return merged_strings
 
     @classmethod
     def get(cls, key: str, count: Optional[int] = None, **kwargs) -> str:
